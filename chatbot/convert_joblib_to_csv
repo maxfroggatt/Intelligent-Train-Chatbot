@@ -1,0 +1,33 @@
+import pandas as pd
+from joblib import load
+from pathlib import Path
+
+BASE_DIR = Path(__file__).parent  # chatbot/
+
+def convert_rid_hist_avg():
+    joblib_path = BASE_DIR / "rid_hist_avg.joblib"
+    csv_path = BASE_DIR / "rid_hist_avg.csv"
+
+    print(f"[INFO] Converting: {joblib_path.name} → {csv_path.name}")
+    series = load(joblib_path)
+    series.to_frame(name="mean_delay").to_csv(csv_path, index_label="rid")
+    print("[DONE] rid_hist_avg.csv created.")
+
+def convert_schedules():
+    joblib_path = BASE_DIR / "schedules.joblib"
+    csv_path = BASE_DIR / "schedules.csv"
+
+    print(f"[INFO] Converting: {joblib_path.name} → {csv_path.name}")
+    schedules = load(joblib_path)
+    rows = []
+
+    for rid, stations in schedules.items():
+        for i, station in enumerate(stations):
+            rows.append({"rid": rid, "stop_number": i + 1, "station": station})
+
+    pd.DataFrame(rows).to_csv(csv_path, index=False)
+    print("[DONE] schedules.csv created.")
+
+if __name__ == "__main__":
+    convert_rid_hist_avg()
+    convert_schedules()
